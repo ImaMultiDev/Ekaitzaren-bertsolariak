@@ -1,0 +1,123 @@
+// Ekaitzaren bertsolariak - Plataforma artística
+// Prisma schema para PostgreSQL (Railway)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// AUTORES (preparado para multi-autor futuro)
+// ============================================
+model Author {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  bio         String?  @db.Text
+  imageUrl    String?  // Cloudinary
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  works       Work[]
+}
+
+// ============================================
+// ETIQUETAS / TEMÁTICAS (para filtrado futuro)
+// ============================================
+model Tag {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+
+  works       WorkTag[]
+}
+
+// ============================================
+// OBRAS (entidad genérica unificada)
+// ============================================
+model Work {
+  id            String       @id @default(cuid())
+  title         String
+  slug          String       @unique
+  subtitle      String?
+  excerpt       String?      @db.Text
+  content       String?      @db.Text // Letra/poema/contenido principal
+  type          WorkType
+  publishedAt   DateTime?
+  featured      Boolean      @default(false)
+  order         Int          @default(0) // Para ordenar destacados
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  authorId      String
+  author        Author       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // Relaciones polimórficas según tipo
+  song          Song?
+  book          Book?
+  images        WorkImage[]
+
+  tags          WorkTag[]
+}
+
+enum WorkType {
+  SONG
+  BOOK
+  POEM
+  OTHER
+}
+
+// ============================================
+// CANCIONES (letra + SoundCloud)
+// ============================================
+model Song {
+  id              String   @id @default(cuid())
+  workId          String   @unique
+  work            Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+  soundcloudUrl   String?  // URL del embed de SoundCloud
+  soundcloudId    String?  // ID para construir embed
+  duration        Int?     // Segundos (opcional)
+}
+
+// ============================================
+// LIBROS (PDF o embed Canva/externo)
+// ============================================
+model Book {
+  id              String   @id @default(cuid())
+  workId          String   @unique
+  work            Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+  pdfUrl          String?  // URL del PDF (Cloudinary o externo)
+  embedUrl        String?  // Embed tipo Canva, Issuu, etc.
+  pages           Int?
+}
+
+// ============================================
+// IMÁGENES (Cloudinary)
+// ============================================
+model WorkImage {
+  id              String   @id @default(cuid())
+  workId          String
+  work            Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+  cloudinaryUrl   String
+  cloudinaryId    String?
+  alt             String?
+  caption         String?
+  order           Int      @default(0)
+}
+
+// ============================================
+// RELACIÓN OBRAS-ETIQUETAS (many-to-many)
+// ============================================
+model WorkTag {
+  workId    String
+  tagId     String
+  work      Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([workId, tagId])
+}
