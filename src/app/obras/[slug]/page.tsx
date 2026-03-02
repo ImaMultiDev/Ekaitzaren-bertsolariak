@@ -36,14 +36,10 @@ export default async function WorkDetailPage({ params }: Props) {
           </Link>
           <p className="mt-8 text-grey-muted text-xs tracking-wider uppercase">
             {typeLabel}
-            {work.project && (
-              <>
-                {" · "}
-                <Link href={`/proyectos/${work.project.slug}`} className="hover:text-white-muted transition-colors">
-                  {work.project.name}
-                </Link>
-              </>
-            )}
+            {work.project &&
+              (work.project.proyecto
+                ? ` · ${work.project.proyecto.name} · ${work.project.name}`
+                : ` · ${work.project.name}`)}
           </p>
           <h1 className="font-display text-3xl sm:text-4xl font-normal text-white-broken mt-4 leading-tight">
             {work.title}
@@ -57,8 +53,20 @@ export default async function WorkDetailPage({ params }: Props) {
       {/* Contenido - tratamiento editorial extremo */}
       <div className="py-16 px-6 sm:px-12 lg:px-24">
         <div className="max-w-2xl mx-auto">
-          {/* Letra como poesía - primero el texto */}
-          {work.content ? (
+          {/* Libro: enlace externo (Canva u otra URL) */}
+          {work.type === "BOOK" && work.embedUrl && work.embedUrl.length > 0 ? (
+            <div className="poem-line font-body text-xl leading-[2.2] text-white-broken">
+              {work.excerpt && <p className="mb-8">{work.excerpt}</p>}
+              <a
+                href={work.embedUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block text-white-broken text-sm tracking-[0.2em] uppercase border-b border-white-broken/30 pb-1 hover:border-white-broken/60 transition-colors duration-300"
+              >
+                Abrir libro →
+              </a>
+            </div>
+          ) : work.content ? (
             <div className="poem-line font-body text-xl leading-[2.2] text-white-broken">
               <div
                 className="whitespace-pre-wrap"

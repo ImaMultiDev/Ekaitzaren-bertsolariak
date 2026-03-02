@@ -25,8 +25,23 @@ model Author {
 }
 
 // ============================================
-// PROYECTOS (álbumes, EPs, recopilaciones)
-// Las canciones pueden pertenecer opcionalmente a un proyecto
+// PROYECTO (grupo padre: ej. Kaos Ekaitza)
+// Contiene álbumes
+// ============================================
+model Proyecto {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projects    Project[]
+}
+
+// ============================================
+// PROJECT (álbum, EP, recopilación)
+// Pertenece opcionalmente a un Proyecto
 // ============================================
 model Project {
   id          String   @id @default(cuid())
@@ -38,6 +53,9 @@ model Project {
   order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  proyectoId  String?
+  proyecto    Proyecto? @relation(fields: [proyectoId], references: [id], onDelete: SetNull)
 
   works       Work[]
 }

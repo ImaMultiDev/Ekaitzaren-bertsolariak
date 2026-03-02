@@ -1,5 +1,13 @@
 export type WorkType = "SONG" | "BOOK";
 
+export interface Proyecto {
+  id: string;
+  name: string;
+  slug: string;
+  order: number;
+  projects?: Project[];
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -9,6 +17,7 @@ export interface Project {
   year?: number;
   order: number;
   worksCount?: number;
+  proyecto?: Proyecto;
 }
 
 export interface Work {

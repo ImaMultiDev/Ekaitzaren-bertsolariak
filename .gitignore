@@ -54,3 +54,7 @@ next-env.d.ts
 *.crt
 .env.backup
 .env.*.backup
+
+# Contenido local (letras, importación) - NO versionar en GitHub
+content/
+**/content/

@@ -20,9 +20,6 @@ export default function Footer() {
             <Link href="/" className="text-grey-muted hover:text-white-muted transition-colors duration-300">
               Inicio
             </Link>
-            <Link href="/proyectos" className="text-grey-muted hover:text-white-muted transition-colors duration-300">
-              Proyectos
-            </Link>
             <Link href="/obras" className="text-grey-muted hover:text-white-muted transition-colors duration-300">
               Obras
             </Link>

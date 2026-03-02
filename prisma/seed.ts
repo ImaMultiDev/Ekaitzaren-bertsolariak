@@ -1,6 +1,83 @@
+import * as fs from "fs";
+import * as path from "path";
 import prisma from "../src/lib/prisma";
 
+function findContentDir(): string {
+  const candidates = [
+    path.join(process.cwd(), "content", "txt_letras"),
+    path.join(process.cwd(), "..", "content", "txt_letras"),
+    path.join(process.cwd(), "..", "..", "content", "txt_letras"),
+  ];
+  for (const dir of candidates) {
+    if (fs.existsSync(dir)) return dir;
+  }
+  return candidates[0];
+}
+const CONTENT_DIR = findContentDir();
+
+function parseFilename(
+  filename: string,
+): { track: number; title: string } | null {
+  const match = filename.match(/^(\d{2})_(.+)\.txt$/);
+  if (!match) return null;
+  const track = parseInt(match[1], 10);
+  const titleRaw = match[2].replace(/_/g, " ");
+  const title = titleRaw
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+  return { track, title };
+}
+
+function toSlug(str: string): string {
+  return str
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function importSongsFromAlbum(
+  albumPath: string,
+): { track: number; title: string; content: string; slug: string }[] {
+  if (!fs.existsSync(albumPath)) {
+    console.warn("Carpeta no encontrada:", albumPath);
+    return [];
+  }
+
+  const files = fs.readdirSync(albumPath).filter((f) => f.endsWith(".txt"));
+  const songs: {
+    track: number;
+    title: string;
+    content: string;
+    slug: string;
+  }[] = [];
+
+  for (const file of files.sort()) {
+    const parsed = parseFilename(file);
+    if (!parsed) continue;
+    const content = fs.readFileSync(path.join(albumPath, file), "utf-8").trim();
+    songs.push({
+      track: parsed.track,
+      title: parsed.title,
+      content,
+      slug: toSlug(parsed.title),
+    });
+  }
+
+  return songs;
+}
+
 async function main() {
+  await prisma.workTag.deleteMany({});
+  await prisma.workImage.deleteMany({});
+  await prisma.song.deleteMany({});
+  await prisma.book.deleteMany({});
+  await prisma.work.deleteMany({});
+  await prisma.project.deleteMany({});
+  await prisma.proyecto.deleteMany({});
+
   const author = await prisma.author.upsert({
     where: { slug: "ekaitzaren-bertsolariak" },
     update: {},
@@ -12,125 +89,176 @@ async function main() {
   });
 
   const tags = await Promise.all([
-    prisma.tag.upsert({ where: { slug: "tormenta" }, update: {}, create: { name: "tormenta", slug: "tormenta" } }),
-    prisma.tag.upsert({ where: { slug: "resistencia" }, update: {}, create: { name: "resistencia", slug: "resistencia" } }),
-    prisma.tag.upsert({ where: { slug: "verdad" }, update: {}, create: { name: "verdad", slug: "verdad" } }),
-    prisma.tag.upsert({ where: { slug: "luz" }, update: {}, create: { name: "luz", slug: "luz" } }),
-    prisma.tag.upsert({ where: { slug: "dignidad" }, update: {}, create: { name: "dignidad", slug: "dignidad" } }),
-    prisma.tag.upsert({ where: { slug: "antologia" }, update: {}, create: { name: "antología", slug: "antologia" } }),
-    prisma.tag.upsert({ where: { slug: "libro" }, update: {}, create: { name: "libro", slug: "libro" } }),
+    prisma.tag.upsert({
+      where: { slug: "tormenta" },
+      update: {},
+      create: { name: "tormenta", slug: "tormenta" },
+    }),
+    prisma.tag.upsert({
+      where: { slug: "resistencia" },
+      update: {},
+      create: { name: "resistencia", slug: "resistencia" },
+    }),
+    prisma.tag.upsert({
+      where: { slug: "verdad" },
+      update: {},
+      create: { name: "verdad", slug: "verdad" },
+    }),
+    prisma.tag.upsert({
+      where: { slug: "dignidad" },
+      update: {},
+      create: { name: "dignidad", slug: "dignidad" },
+    }),
+    prisma.tag.upsert({
+      where: { slug: "libro" },
+      update: {},
+      create: { name: "libro", slug: "libro" },
+    }),
   ]);
   const tagMap = Object.fromEntries(tags.map((t) => [t.slug, t.id]));
 
-  const project1 = await prisma.project.upsert({
-    where: { slug: "ekaitza-ep" },
+  const proyecto = await prisma.proyecto.upsert({
+    where: { slug: "kaos-ekaitza" },
     update: {},
     create: {
-      name: "Ekaitza EP",
-      slug: "ekaitza-ep",
-      description: "Primer trabajo. La tormenta empieza aquí.",
+      name: "Kaos Ekaitza",
+      slug: "kaos-ekaitza",
+      order: 1,
+    },
+  });
+
+  const project1 = await prisma.project.upsert({
+    where: { slug: "gritos-en-la-tormenta" },
+    update: { proyectoId: proyecto.id },
+    create: {
+      name: "Gritos en la Tormenta",
+      slug: "gritos-en-la-tormenta",
+      description: "Álbum de Kaos Ekaitza. 10 canciones.",
       year: 2024,
       order: 1,
+      proyectoId: proyecto.id,
+    },
+  });
+
+  const project2 = await prisma.project.upsert({
+    where: { slug: "revienta-el-silencio" },
+    update: { proyectoId: proyecto.id },
+    create: {
+      name: "Revienta el Silencio",
+      slug: "revienta-el-silencio",
+      description: "Álbum de Kaos Ekaitza. 10 canciones.",
+      year: 2025,
+      order: 2,
+      proyectoId: proyecto.id,
     },
   });
 
   const now = new Date();
 
-  const worksData = [
+  const albums = [
     {
-      slug: "ekaitza",
-      title: "Ekaitza",
-      subtitle: "La tormenta que nos nombra",
-      excerpt: "Cuando el cielo se rompe en mil pedazos y la lluvia cae como memoria, somos la voz que el silencio no pudo callar.",
-      content: `Cuando el cielo se rompe en mil pedazos
-y la lluvia cae como memoria,
-somos la voz que el silencio no pudo callar.
-
-No somos uno. Somos muchos.
-La tormenta tiene mil bocas
-y cada gota canta tu nombre.
-
-En la calle, en la noche,
-donde la luz se apaga y renace,
-ahí estamos. Siempre ahí.
-
-Ekaitza. La tormenta.
-No es destrucción. Es verdad.`,
-      type: "SONG" as const,
-      featured: true,
-      order: 1,
-      tagSlugs: ["tormenta", "resistencia"],
-      soundcloudId: "example",
-      projectSlug: "ekaitza-ep",
+      path: path.join(
+        CONTENT_DIR,
+        "kaos_ekaitza",
+        "album1_gritos_en_la_tormenta",
+      ),
+      project: project1,
+      orderOffset: 0,
     },
     {
-      slug: "relampagos",
-      title: "Relámpagos",
-      subtitle: "Fragmentos de verdad",
-      excerpt: "Un instante de luz en la oscuridad. Eso es todo lo que a veces necesitamos para seguir caminando.",
-      type: "SONG" as const,
-      featured: true,
-      order: 2,
-      tagSlugs: ["verdad", "luz"],
-      soundcloudId: "example",
-      projectSlug: "ekaitza-ep",
-    },
-    {
-      slug: "dignidad",
-      title: "Dignidad",
-      subtitle: "Lo que no se puede comprar",
-      excerpt: "Hay cosas que el dinero no toca. La dignidad es una de ellas.",
-      type: "SONG" as const,
-      featured: false,
-      order: 3,
-      tagSlugs: ["dignidad", "resistencia"],
-      projectSlug: null,
-    },
-    {
-      slug: "primer-libro",
-      title: "Primer libro",
-      subtitle: "Antología 2018-2024",
-      excerpt: "Una recopilación de letras y poemas escritos a lo largo de seis años.",
-      type: "BOOK" as const,
-      featured: true,
-      order: 4,
-      tagSlugs: ["antologia", "libro"],
+      path: path.join(
+        CONTENT_DIR,
+        "kaos_ekaitza",
+        "album2_revienta_el_silencio",
+      ),
+      project: project2,
+      orderOffset: 10,
     },
   ];
 
-  for (const w of worksData) {
-    const { tagSlugs, soundcloudId, projectSlug, ...workData } = w;
-    const projectId = projectSlug ? (await prisma.project.findUnique({ where: { slug: projectSlug } }))?.id : null;
-    const work = await prisma.work.upsert({
-      where: { slug: w.slug },
-      update: { projectId },
-      create: {
-        ...workData,
-        authorId: author.id,
-        publishedAt: now,
-        projectId,
-      },
-    });
+  let totalSongs = 0;
+  for (const album of albums) {
+    const songs = importSongsFromAlbum(album.path);
+    for (const song of songs) {
+      const excerpt =
+        song.content.split("\n").slice(0, 3).join(" ").slice(0, 150) + "...";
+      const work = await prisma.work.upsert({
+        where: { slug: song.slug },
+        update: {
+          title: song.title,
+          content: song.content,
+          excerpt,
+          order: album.orderOffset + song.track,
+        },
+        create: {
+          title: song.title,
+          slug: song.slug,
+          excerpt,
+          content: song.content,
+          type: "SONG",
+          featured: song.track <= 2,
+          order: album.orderOffset + song.track,
+          authorId: author.id,
+          projectId: album.project.id,
+          publishedAt: now,
+        },
+      });
 
-    if (soundcloudId) {
       await prisma.song.upsert({
         where: { workId: work.id },
-        update: { soundcloudId },
-        create: { workId: work.id, soundcloudId },
+        update: {},
+        create: { workId: work.id },
       });
-    }
-
-    if (tagSlugs?.length) {
-      await prisma.workTag.deleteMany({ where: { workId: work.id } });
-      await prisma.workTag.createMany({
-        data: tagSlugs.map((slug) => ({ workId: work.id, tagId: tagMap[slug] })),
-      });
+      totalSongs++;
     }
   }
 
-  console.log("Seed completado.");
+  const bookWork = await prisma.work.upsert({
+    where: { slug: "cuando-habla-la-tormenta" },
+    update: {},
+    create: {
+      title: "Cuando habla la tormenta",
+      slug: "cuando-habla-la-tormenta",
+      excerpt: "Libro que narra la historia de una tormenta.",
+      type: "BOOK",
+      featured: false,
+      order: 100,
+      authorId: author.id,
+      publishedAt: now,
+    },
+  });
+
+  await prisma.book.upsert({
+    where: { workId: bookWork.id },
+    update: {},
+    create: {
+      workId: bookWork.id,
+      embedUrl: process.env.CANVA_BOOK_URL || "",
+    },
+  });
+
+  await prisma.workTag.upsert({
+    where: {
+      workId_tagId: {
+        workId: bookWork.id,
+        tagId: tagMap.libro,
+      },
+    },
+    update: {},
+    create: {
+      workId: bookWork.id,
+      tagId: tagMap.libro,
+    },
+  });
+
+  console.log(`Seed completado: ${totalSongs} canciones, 1 libro.`);
 }
 
 main()
-  .catch((e) => { console.error(e); process.exit(1); })
-  .finally(async () => { await prisma.$disconnect(); });
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

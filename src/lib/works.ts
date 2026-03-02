@@ -1,8 +1,21 @@
 import prisma from "./prisma";
-import type { Work, Project } from "./types";
-import { WorkType } from "@prisma/client";
+import type { Work, Project, Proyecto } from "./types";
+import { WorkType, Prisma } from "@prisma/client";
 
-function serializeProject(p: { id: string; name: string; slug: string; description: string | null; imageUrl: string | null; year: number | null; order: number }): Project {
+function serializeProyecto(p: { id: string; name: string; slug: string; order: number }): Proyecto {
+  return { id: p.id, name: p.name, slug: p.slug, order: p.order };
+}
+
+function serializeProject(p: {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  imageUrl: string | null;
+  year: number | null;
+  order: number;
+  proyecto?: { id: string; name: string; slug: string; order: number } | null;
+}): Project {
   return {
     id: p.id,
     name: p.name,
@@ -11,6 +24,7 @@ function serializeProject(p: { id: string; name: string; slug: string; descripti
     imageUrl: p.imageUrl ?? undefined,
     year: p.year ?? undefined,
     order: p.order,
+    proyecto: p.proyecto ? serializeProyecto(p.proyecto) : undefined,
   };
 }
 
@@ -24,7 +38,7 @@ function serializeWork(work: {
   type: WorkType;
   featured: boolean;
   order: number;
-  project: { id: string; name: string; slug: string; description: string | null; imageUrl: string | null; year: number | null; order: number } | null;
+  project: { id: string; name: string; slug: string; description: string | null; imageUrl: string | null; year: number | null; order: number; proyecto?: { id: string; name: string; slug: string; order: number } | null } | null;
   song: { soundcloudId: string | null; soundcloudUrl: string | null } | null;
   book: { pdfUrl: string | null; embedUrl: string | null } | null;
   images: { cloudinaryUrl: string; alt: string | null; caption: string | null }[];
@@ -55,7 +69,7 @@ function serializeWork(work: {
 }
 
 const workInclude = {
-  project: true,
+  project: { include: { proyecto: true } },
   song: true,
   book: true,
   images: { orderBy: { order: "asc" as const } },
@@ -66,25 +80,61 @@ export async function getWorks(options?: {
   type?: WorkType;
   featured?: boolean;
   projectSlug?: string;
+  search?: string;
 }): Promise<Work[]> {
-  const where: {
-    publishedAt: { not: null };
-    type?: WorkType;
-    featured?: boolean;
-    project?: { slug: string };
-  } = { publishedAt: { not: null } };
+  const where: Record<string, unknown> = { publishedAt: { not: null } };
 
   if (options?.type) where.type = options.type;
   if (options?.featured) where.featured = true;
   if (options?.projectSlug) where.project = { slug: options.projectSlug };
 
+  if (options?.search && options.search.trim()) {
+    const q = options.search.trim();
+    where.OR = [
+      { title: { contains: q, mode: "insensitive" } },
+      { project: { name: { contains: q, mode: "insensitive" } } },
+      { project: { proyecto: { name: { contains: q, mode: "insensitive" } } } },
+    ];
+  }
+
   const works = await prisma.work.findMany({
-    where,
+    where: where as Prisma.WorkWhereInput,
     orderBy: [{ order: "asc" }, { publishedAt: "desc" }],
     include: workInclude,
   });
 
   return works.map(serializeWork);
+}
+
+export async function getProyectos(): Promise<Proyecto[]> {
+  const proyectos = await prisma.proyecto.findMany({
+    orderBy: { order: "asc" },
+    include: {
+      projects: {
+        orderBy: { order: "asc" },
+        include: { _count: { select: { works: true } } },
+      },
+    },
+  });
+  return proyectos.map((p) => ({
+    ...serializeProyecto(p),
+    projects: p.projects.map((proj) => ({
+      ...serializeProject(proj),
+      worksCount: proj._count.works,
+    })),
+  }));
+}
+
+export async function getProjectsWithoutProyecto(): Promise<Project[]> {
+  const projects = await prisma.project.findMany({
+    where: { proyectoId: null },
+    orderBy: { order: "asc" },
+    include: { _count: { select: { works: true } } },
+  });
+  return projects.map((p) => ({
+    ...serializeProject(p),
+    worksCount: p._count.works,
+  }));
 }
 
 export async function getWorkBySlug(slug: string): Promise<Work | null> {
@@ -104,38 +154,3 @@ export async function getWorkSlugs(): Promise<string[]> {
   return works.map((w) => w.slug);
 }
 
-export async function getProjects(): Promise<Project[]> {
-  const projects = await prisma.project.findMany({
-    orderBy: [{ order: "asc" }, { year: "desc" }],
-    include: {
-      _count: { select: { works: true } },
-    },
-  });
-  return projects.map((p) => ({
-    ...serializeProject(p),
-    worksCount: p._count.works,
-  }));
-}
-
-export async function getProjectBySlug(slug: string): Promise<{ project: Project; works: Work[] } | null> {
-  const project = await prisma.project.findUnique({
-    where: { slug },
-    include: {
-      works: {
-        where: { publishedAt: { not: null } },
-        orderBy: [{ order: "asc" }],
-        include: workInclude,
-      },
-    },
-  });
-  if (!project) return null;
-  return {
-    project: { ...serializeProject(project), worksCount: project.works.length },
-    works: project.works.map(serializeWork),
-  };
-}
-
-export async function getProjectSlugs(): Promise<string[]> {
-  const projects = await prisma.project.findMany({ select: { slug: true } });
-  return projects.map((p) => p.slug);
-}

@@ -1,18 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getWorks, getProjects } from "@/lib/works";
+import { getWorks } from "@/lib/works";
 
 export default async function HomePage() {
-  const [featuredWorks, projects] = await Promise.all([
-    getWorks({ featured: true }),
-    getProjects(),
-  ]);
+  const featuredWorks = await getWorks({ featured: true });
 
   return (
     <div>
       {/* Hero - editorial, silencioso, composición compacta */}
       <section className="min-h-[85vh] flex flex-col justify-center px-6 sm:px-12 lg:px-24">
-        <div className="max-w-5xl mx-auto w-full flex flex-col lg:flex-row lg:items-center gap-10 lg:gap-12">
+        <div className="max-w-4xl mx-auto w-full flex flex-col lg:flex-row lg:items-center gap-10 lg:gap-12">
           <div className="max-w-xl flex-shrink-0">
             <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-normal text-white-broken leading-tight tracking-tight">
               Ekaitzaren
@@ -23,9 +20,9 @@ export default async function HomePage() {
               Letras y música. La palabra como centro.
             </p>
             <p className="mt-6 text-white-muted text-lg leading-relaxed max-w-md">
-              Este espacio reúne mis canciones, letras y otros formatos de escritura.
-              Obras nacidas de la tormenta: cuando callar no es una opción
-              y la palabra se convierte en compromiso compartido.
+              Este espacio reúne mis canciones, letras y otros formatos de
+              escritura. Obras nacidas de la tormenta: cuando callar no es una
+              opción y la palabra se convierte en compromiso compartido.
             </p>
             <Link
               href="/obras"
@@ -48,35 +45,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Proyectos */}
-      {projects.length > 0 && (
-        <section className="py-24 px-6 sm:px-12 lg:px-24 border-t border-border">
-          <div className="max-w-3xl mx-auto">
-            <p className="text-grey-muted text-xs tracking-[0.2em] uppercase mb-12">
-              Proyectos
-            </p>
-            <div className="space-y-16">
-              {projects.map((project) => (
-                <Link
-                  key={project.id}
-                  href={`/proyectos/${project.slug}`}
-                  className="block group"
-                >
-                  <p className="text-white-broken font-display text-xl group-hover:text-white-muted transition-colors duration-300">
-                    {project.name}
-                  </p>
-                  <p className="text-grey-muted text-sm mt-1">
-                    {project.year ? `${project.year}` : ""}
-                    {project.worksCount !== undefined &&
-                      ` · ${project.worksCount} canciones`}
-                  </p>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Obras destacadas - índice de libro */}
       <section className="py-24 px-6 sm:px-12 lg:px-24 border-t border-border">
