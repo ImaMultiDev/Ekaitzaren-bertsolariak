@@ -25,6 +25,24 @@ model Author {
 }
 
 // ============================================
+// PROYECTOS (álbumes, EPs, recopilaciones)
+// Las canciones pueden pertenecer opcionalmente a un proyecto
+// ============================================
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  imageUrl    String?  // Cloudinary
+  year        Int?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  works       Work[]
+}
+
+// ============================================
 // ETIQUETAS / TEMÁTICAS (para filtrado futuro)
 // ============================================
 model Tag {
@@ -38,7 +56,7 @@ model Tag {
 }
 
 // ============================================
-// OBRAS (entidad genérica unificada)
+// OBRAS (canciones y libros)
 // ============================================
 model Work {
   id            String       @id @default(cuid())
@@ -46,18 +64,20 @@ model Work {
   slug          String       @unique
   subtitle      String?
   excerpt       String?      @db.Text
-  content       String?      @db.Text // Letra/poema/contenido principal
+  content       String?      @db.Text // Letra/contenido principal
   type          WorkType
   publishedAt   DateTime?
   featured      Boolean      @default(false)
-  order         Int          @default(0) // Para ordenar destacados
+  order         Int          @default(0)
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
   authorId      String
   author        Author       @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  // Relaciones polimórficas según tipo
+  projectId     String?      // Opcional: canción pertenece a un proyecto
+  project       Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
   song          Song?
   book          Book?
   images        WorkImage[]
@@ -68,8 +88,6 @@ model Work {
 enum WorkType {
   SONG
   BOOK
-  POEM
-  OTHER
 }
 
 // ============================================
@@ -79,9 +97,9 @@ model Song {
   id              String   @id @default(cuid())
   workId          String   @unique
   work            Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
-  soundcloudUrl   String?  // URL del embed de SoundCloud
-  soundcloudId    String?  // ID para construir embed
-  duration        Int?     // Segundos (opcional)
+  soundcloudUrl   String?
+  soundcloudId    String?
+  duration        Int?
 }
 
 // ============================================
@@ -91,8 +109,8 @@ model Book {
   id              String   @id @default(cuid())
   workId          String   @unique
   work            Work     @relation(fields: [workId], references: [id], onDelete: Cascade)
-  pdfUrl          String?  // URL del PDF (Cloudinary o externo)
-  embedUrl        String?  // Embed tipo Canva, Issuu, etc.
+  pdfUrl          String?
+  embedUrl        String?
   pages           Int?
 }
 

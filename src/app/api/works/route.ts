@@ -7,13 +7,17 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type") as WorkType | null;
     const featured = searchParams.get("featured");
+    const projectSlug = searchParams.get("project");
 
-    const options: { type?: WorkType; featured?: boolean } = {};
-    if (type && ["SONG", "BOOK", "POEM", "OTHER"].includes(type)) {
+    const options: { type?: WorkType; featured?: boolean; projectSlug?: string } = {};
+    if (type && ["SONG", "BOOK"].includes(type)) {
       options.type = type;
     }
     if (featured === "true") {
       options.featured = true;
+    }
+    if (projectSlug) {
+      options.projectSlug = projectSlug;
     }
 
     const works = await getWorks(options);

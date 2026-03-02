@@ -7,14 +7,13 @@ interface SoundCloudEmbedProps {
 
 export default function SoundCloudEmbed({
   trackId,
-  color = "b91c1c",
+  color = "8a8a8a",
 }: SoundCloudEmbedProps) {
-  // Placeholder para desarrollo cuando no hay ID real
   if (!trackId || trackId === "example") {
     return (
-      <div className="rounded border border-border p-12 text-center bg-black/50">
-        <p className="text-stone text-sm">Reproductor SoundCloud</p>
-        <p className="text-stone/70 text-xs mt-2">
+      <div className="border border-border p-12 text-center">
+        <p className="text-grey-muted text-sm">Reproductor SoundCloud</p>
+        <p className="text-grey-muted/80 text-xs mt-2">
           Añade el ID de tu pista en SoundCloud para incrustar el audio
         </p>
       </div>
@@ -24,7 +23,7 @@ export default function SoundCloudEmbed({
   const embedUrl = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${trackId}&color=%23${color}&auto_play=false&hide_related=false&show_comments=true`;
 
   return (
-    <div className="rounded overflow-hidden border border-border">
+    <div className="overflow-hidden border border-border">
       <iframe
         width="100%"
         height="166"
@@ -33,7 +32,7 @@ export default function SoundCloudEmbed({
         allow="autoplay"
         src={embedUrl}
         title="Reproductor SoundCloud"
-        className="w-full"
+        className="w-full opacity-90"
       />
     </div>
   );

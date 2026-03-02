@@ -8,8 +8,6 @@ import type { Work, WorkType } from "@/lib/types";
 const typeLabels: Record<WorkType, string> = {
   SONG: "Canciones",
   BOOK: "Libros",
-  POEM: "Poemas",
-  OTHER: "Otros",
 };
 
 export default function ObrasPage() {
@@ -30,8 +28,8 @@ export default function ObrasPage() {
 
   if (error) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center px-4">
-        <p className="text-red text-center">{error}</p>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center px-6">
+        <p className="text-white-muted text-center">{error}</p>
         <button
           onClick={() => {
             setError(null);
@@ -41,7 +39,7 @@ export default function ObrasPage() {
               .catch(() => setError("Error al cargar las obras"))
               .finally(() => setLoading(false));
           }}
-          className="mt-6 text-sm tracking-widest uppercase text-stone hover:text-white"
+          className="mt-8 text-xs tracking-widest uppercase text-grey-muted hover:text-white-muted transition-colors"
         >
           Reintentar
         </button>
@@ -51,26 +49,26 @@ export default function ObrasPage() {
 
   return (
     <div className="min-h-screen">
-      {/* Header de sección */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 border-b border-border">
-        <div className="mx-auto max-w-6xl">
-          <div className="line-accent mb-4" />
-          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl tracking-[0.15em] text-white">
-            OBRAS
+      <section className="py-24 px-6 sm:px-12 lg:px-24 border-b border-border">
+        <div className="max-w-3xl mx-auto">
+          <p className="text-grey-muted text-xs tracking-[0.2em] uppercase mb-4">
+            Obras
+          </p>
+          <h1 className="font-display text-3xl sm:text-4xl font-normal text-white-broken">
+            Canciones y libros
           </h1>
-          <p className="mt-6 text-white-broken max-w-2xl text-lg">
-            Letras, canciones, poemas y libros. Todo lo que nace de la tormenta
-            y vuelve a ella como eco.
+          <p className="mt-6 text-white-muted max-w-xl">
+            Índice de obras. La palabra como centro.
           </p>
 
-          {/* Filtros */}
-          <div className="flex flex-wrap gap-2 mt-10">
+          {/* Filtros minimalistas */}
+          <div className="flex gap-8 mt-12">
             <button
               onClick={() => setFilter("ALL")}
-              className={`px-4 py-2 text-sm tracking-widest uppercase transition-colors ${
+              className={`text-xs tracking-[0.2em] uppercase transition-colors duration-300 ${
                 filter === "ALL"
-                  ? "bg-red text-white"
-                  : "border border-border text-stone hover:text-white hover:border-stone"
+                  ? "text-white-broken border-b border-white-broken/40 pb-1"
+                  : "text-grey-muted hover:text-white-muted"
               }`}
             >
               Todas
@@ -79,10 +77,10 @@ export default function ObrasPage() {
               <button
                 key={type}
                 onClick={() => setFilter(type)}
-                className={`px-4 py-2 text-sm tracking-widest uppercase transition-colors ${
+                className={`text-xs tracking-[0.2em] uppercase transition-colors duration-300 ${
                   filter === type
-                    ? "bg-red text-white"
-                    : "border border-border text-stone hover:text-white hover:border-stone"
+                    ? "text-white-broken border-b border-white-broken/40 pb-1"
+                    : "text-grey-muted hover:text-white-muted"
                 }`}
               >
                 {typeLabels[type]}
@@ -92,57 +90,48 @@ export default function ObrasPage() {
         </div>
       </section>
 
-      {/* Listado */}
-      <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-6xl">
+      <section className="py-20 px-6 sm:px-12 lg:px-24">
+        <div className="max-w-3xl mx-auto">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-24">
+            <div className="flex flex-col items-center justify-center py-32">
               <div
-                className="h-8 w-8 border-2 border-red border-t-transparent rounded-full animate-spin"
+                className="h-6 w-6 border border-white-broken/30 border-t-white-broken/60 rounded-full animate-spin"
                 aria-hidden
               />
-              <p className="mt-4 text-stone text-sm">Cargando obras...</p>
+              <p className="mt-6 text-grey-muted text-sm">Cargando...</p>
             </div>
           ) : (
-            <>
-              <div className="space-y-1">
-                {filteredWorks.map((work) => (
-                  <Link
-                    key={work.id}
-                    href={`/obras/${work.slug}`}
-                    className="group block border-b border-border py-8 sm:py-10 hover:border-red/30 transition-colors"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                      <div>
-                        <span className="text-xs tracking-widest uppercase text-red">
-                          {typeLabels[work.type]}
-                        </span>
-                        <h2 className="font-heading text-2xl sm:text-3xl font-semibold text-white mt-1 group-hover:text-red transition-colors">
-                          {work.title}
-                        </h2>
-                        {work.subtitle && (
-                          <p className="text-stone mt-1 italic">{work.subtitle}</p>
-                        )}
-                      </div>
-                      <span className="text-stone group-hover:text-red transition-colors sm:ml-4">
-                        →
-                      </span>
-                    </div>
-                    {work.excerpt && (
-                      <p className="mt-4 text-white-broken line-clamp-2 max-w-2xl">
-                        {work.excerpt}
-                      </p>
-                    )}
-                  </Link>
-                ))}
-              </div>
+            <div className="space-y-20">
+              {filteredWorks.map((work) => (
+                <Link
+                  key={work.id}
+                  href={`/obras/${work.slug}`}
+                  className="block group"
+                >
+                  <p className="text-grey-muted text-xs tracking-wider uppercase">
+                    {typeLabels[work.type]}
+                    {work.project && ` · ${work.project.name}`}
+                  </p>
+                  <p className="text-white-broken font-display text-xl mt-2 group-hover:text-white-muted transition-colors duration-300">
+                    {work.title}
+                  </p>
+                  {work.subtitle && (
+                    <p className="text-grey-muted text-sm mt-1 italic">{work.subtitle}</p>
+                  )}
+                  {work.excerpt && (
+                    <p className="text-white-muted text-sm mt-4 line-clamp-2 max-w-xl">
+                      {work.excerpt}
+                    </p>
+                  )}
+                </Link>
+              ))}
+            </div>
+          )}
 
-              {filteredWorks.length === 0 && (
-                <p className="text-stone text-center py-16">
-                  No hay obras en esta categoría.
-                </p>
-              )}
-            </>
+          {!loading && filteredWorks.length === 0 && (
+            <p className="text-grey-muted text-sm py-24 text-center">
+              No hay obras en esta categoría.
+            </p>
           )}
         </div>
       </section>

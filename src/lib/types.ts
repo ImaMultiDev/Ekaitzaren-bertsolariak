@@ -1,4 +1,15 @@
-export type WorkType = "SONG" | "BOOK" | "POEM" | "OTHER";
+export type WorkType = "SONG" | "BOOK";
+
+export interface Project {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  imageUrl?: string;
+  year?: number;
+  order: number;
+  worksCount?: number;
+}
 
 export interface Work {
   id: string;
@@ -10,6 +21,7 @@ export interface Work {
   type: WorkType;
   featured: boolean;
   order: number;
+  project?: Project;
   soundcloudId?: string;
   soundcloudUrl?: string;
   pdfUrl?: string;

@@ -21,70 +21,74 @@ export default async function WorkDetailPage({ params }: Props) {
     notFound();
   }
 
-  const typeLabel =
-    work.type === "SONG"
-      ? "Canción"
-      : work.type === "BOOK"
-        ? "Libro"
-        : work.type === "POEM"
-          ? "Poema"
-          : "Obra";
+  const typeLabel = work.type === "SONG" ? "Canción" : "Libro";
 
   return (
     <article className="min-h-screen">
-      {/* Cabecera */}
-      <header className="py-12 sm:py-20 px-4 sm:px-6 lg:px-8 border-b border-border">
-        <div className="mx-auto max-w-3xl">
+      {/* Cabecera editorial */}
+      <header className="py-20 px-6 sm:px-12 lg:px-24">
+        <div className="max-w-2xl mx-auto">
           <Link
             href="/obras"
-            className="text-sm tracking-widest uppercase text-stone hover:text-white transition-colors"
+            className="text-xs tracking-[0.2em] uppercase text-grey-muted hover:text-white-muted transition-colors duration-300"
           >
             ← Volver a obras
           </Link>
-          <span className="block mt-4 text-xs tracking-widest uppercase text-red">
+          <p className="mt-8 text-grey-muted text-xs tracking-wider uppercase">
             {typeLabel}
-          </span>
-          <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-semibold text-white mt-2">
+            {work.project && (
+              <>
+                {" · "}
+                <Link href={`/proyectos/${work.project.slug}`} className="hover:text-white-muted transition-colors">
+                  {work.project.name}
+                </Link>
+              </>
+            )}
+          </p>
+          <h1 className="font-display text-3xl sm:text-4xl font-normal text-white-broken mt-4 leading-tight">
             {work.title}
           </h1>
           {work.subtitle && (
-            <p className="text-stone text-xl mt-2 italic">{work.subtitle}</p>
+            <p className="text-grey-muted text-lg mt-4 italic">{work.subtitle}</p>
           )}
         </div>
       </header>
 
-      {/* Contenido - maquetación centrada en lectura */}
-      <div className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-3xl">
-          {/* Reproductor SoundCloud (si aplica) */}
-          {work.type === "SONG" && work.soundcloudId && (
-            <div className="mb-12">
-              <SoundCloudEmbed trackId={work.soundcloudId} />
-            </div>
-          )}
-
-          {/* Letra como poema */}
+      {/* Contenido - tratamiento editorial extremo */}
+      <div className="py-16 px-6 sm:px-12 lg:px-24">
+        <div className="max-w-2xl mx-auto">
+          {/* Letra como poesía - primero el texto */}
           {work.content ? (
-            <div className="poem-line font-body text-lg leading-relaxed">
+            <div className="poem-line font-body text-xl leading-[2.2] text-white-broken">
               <div
-                className="whitespace-pre-wrap text-white-broken"
+                className="whitespace-pre-wrap"
                 dangerouslySetInnerHTML={{
                   __html: work.content.replace(/\n/g, "<br />"),
                 }}
               />
             </div>
           ) : (
-            <div className="poem-line font-body text-lg leading-relaxed text-white-broken">
-              <p className="mb-6">{work.excerpt}</p>
-              <p className="italic text-stone">
+            <div className="poem-line font-body text-xl leading-[2.2] text-white-broken">
+              <p className="mb-8">{work.excerpt}</p>
+              <p className="italic text-grey-muted text-sm">
                 [Contenido completo próximamente]
               </p>
             </div>
           )}
 
-          {/* Imágenes (cuando haya Cloudinary) */}
+          {/* Audio - discreto, como nota al pie */}
+          {work.type === "SONG" && work.soundcloudId && (
+            <div className="mt-24 pt-12 border-t border-border">
+              <p className="text-grey-muted text-xs tracking-wider uppercase mb-4">
+                Escuchar
+              </p>
+              <SoundCloudEmbed trackId={work.soundcloudId} />
+            </div>
+          )}
+
+          {/* Imágenes */}
           {work.images && work.images.length > 0 && (
-            <div className="mt-16 space-y-8">
+            <div className="mt-24 space-y-12">
               {work.images.map((img, i) => (
                 <figure key={i} className="space-y-2">
                   <Image
@@ -92,10 +96,10 @@ export default async function WorkDetailPage({ params }: Props) {
                     alt={img.alt || ""}
                     width={800}
                     height={600}
-                    className="w-full object-cover"
+                    className="w-full object-cover opacity-90"
                   />
                   {img.caption && (
-                    <figcaption className="text-sm text-stone italic">
+                    <figcaption className="text-sm text-grey-muted italic">
                       {img.caption}
                     </figcaption>
                   )}
@@ -104,17 +108,17 @@ export default async function WorkDetailPage({ params }: Props) {
             </div>
           )}
 
-          {/* Etiquetas */}
+          {/* Etiquetas - discretas */}
           {work.tags && work.tags.length > 0 && (
-            <div className="mt-16 pt-8 border-t border-border">
-              <p className="text-xs tracking-widest uppercase text-stone mb-2">
+            <div className="mt-24 pt-12 border-t border-border">
+              <p className="text-grey-muted text-xs tracking-wider uppercase mb-4">
                 Temáticas
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-4">
                 {work.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="px-3 py-1 text-sm border border-border text-stone"
+                    className="text-sm text-white-muted"
                   >
                     {tag}
                   </span>

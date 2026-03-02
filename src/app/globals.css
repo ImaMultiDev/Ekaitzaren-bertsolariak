@@ -1,158 +1,90 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
 @import "tailwindcss";
 
 /* ============================================
-   EKAITZAREN BERTSOLARIAK - Sistema Visual
-   Estética: rock/punk elegante, tormenta, poesía
+   EKAITZAREN BERTSOLARIAK - Editorial minimalista
+   Libro de poesía contemporánea en blanco y negro
    ============================================ */
 
 :root {
-  /* Paleta principal */
-  --black: #0a0a0a;
-  --black-soft: #171717;
-  --red: #b91c1c;
-  --red-dark: #7f1d1d;
-  --red-light: #dc2626;
-  --white: #fafaf9;
-  --white-broken: #e7e5e4;
-  --stone: #a8a29e;
-  --stone-light: #d6d3d1;
+  /* Negro carbón / mate (no negro puro) */
+  --charcoal: #1a1a1a;
+  --charcoal-soft: #252525;
+  --charcoal-light: #2e2e2e;
 
-  /* Semánticos */
-  --background: var(--black);
-  --foreground: var(--white);
-  --accent: var(--red);
-  --muted: var(--stone);
-  --border: rgba(248, 250, 252, 0.08);
+  /* Blanco roto / gris editorial */
+  --white-broken: #e8e8e8;
+  --white-muted: #b8b8b8;
+  --grey: #8a8a8a;
+  --grey-muted: #6b6b6b;
 
-  /* Tipografía */
-  --font-display: 'Bebas Neue', sans-serif;
-  --font-heading: 'Cormorant Garamond', Georgia, serif;
-  --font-body: 'Source Serif 4', Georgia, serif;
+  --background: var(--charcoal);
+  --foreground: var(--white-broken);
+  --muted: var(--grey);
+  --border: rgba(232, 232, 232, 0.06);
 
-  /* Espaciado poético */
-  --space-tight: 0.5em;
-  --space-normal: 1em;
-  --space-relaxed: 1.5em;
-  --space-loose: 2.5em;
+  /* Tipografía editorial */
+  --font-display: 'Libre Baskerville', Georgia, serif;
+  --font-body: 'Cormorant Garamond', Georgia, serif;
 
-  /* Animaciones */
-  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --duration-fast: 200ms;
-  --duration-normal: 400ms;
-  --duration-slow: 700ms;
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-slow: 800ms;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-accent: var(--accent);
   --color-muted: var(--muted);
-  --color-red: var(--red);
-  --color-red-dark: var(--red-dark);
   --color-border: var(--border);
   --color-white-broken: var(--white-broken);
-  --color-stone: var(--stone);
-  --color-stone-light: var(--stone-light);
+  --color-white-muted: var(--white-muted);
+  --color-grey: var(--grey);
+  --color-grey-muted: var(--grey-muted);
+  --color-charcoal: var(--charcoal);
+  --color-charcoal-soft: var(--charcoal-soft);
   --font-display: var(--font-display);
-  --font-heading: var(--font-heading);
   --font-body: var(--font-body);
 }
 
-/* ============================================
-   Base
-   ============================================ */
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body);
-  font-size: 1.0625rem;
-  line-height: 1.75;
+  font-size: 1.125rem;
+  line-height: 1.8;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* ============================================
-   Tipografía
-   ============================================ */
-.font-display {
-  font-family: var(--font-display);
-  letter-spacing: 0.02em;
-}
+.font-display { font-family: var(--font-display); }
+.font-body { font-family: var(--font-body); }
 
-.font-heading {
-  font-family: var(--font-heading);
-}
-
-.font-body {
-  font-family: var(--font-body);
-}
-
-/* Texto poético - líneas cortas para lectura */
+/* Texto poético - líneas cortas, márgenes amplios */
 .poem-line {
-  max-width: 65ch;
+  max-width: 42ch;
   margin-left: auto;
   margin-right: auto;
+  line-height: 2;
 }
 
-/* ============================================
-   Animaciones sutiles
-   ============================================ */
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(1rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fade-in {
+/* Animación muy sutil */
+@keyframes fade-in-soft {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-@keyframes lightning {
-  0%, 100% { opacity: 0.03; }
-  50% { opacity: 0.08; }
-}
-
-.animate-fade-in-up {
-  animation: fade-in-up var(--duration-slow) var(--ease-out-expo) forwards;
-}
-
 .animate-fade-in {
-  animation: fade-in var(--duration-normal) var(--ease-out-expo) forwards;
+  animation: fade-in-soft var(--duration-slow) var(--ease-soft) forwards;
 }
 
-/* Stagger para listas */
 .stagger-1 { animation-delay: 100ms; }
 .stagger-2 { animation-delay: 200ms; }
 .stagger-3 { animation-delay: 300ms; }
-.stagger-4 { animation-delay: 400ms; }
-.stagger-5 { animation-delay: 500ms; }
-.stagger-6 { animation-delay: 600ms; }
 
-/* ============================================
-   Utilidades
-   ============================================ */
-.text-balance {
-  text-wrap: balance;
-}
-
-/* Línea decorativa roja */
-.line-accent {
-  width: 3rem;
-  height: 2px;
-  background: var(--red);
+/* Hero imagen - bordes suavemente redondeados, integrada y sobria */
+.hero-image-editorial img {
+  display: block;
+  border-radius: 6px;
 }

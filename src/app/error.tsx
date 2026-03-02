@@ -15,23 +15,23 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center px-4">
-      <h2 className="font-display text-2xl tracking-widest text-red">
+    <div className="min-h-[60vh] flex flex-col items-center justify-center px-6">
+      <h2 className="font-display text-2xl font-normal text-white-broken">
         Algo ha fallado
       </h2>
-      <p className="mt-4 text-white-broken text-center max-w-md">
+      <p className="mt-6 text-white-muted text-center max-w-md">
         La tormenta se ha llevado esta página. Intenta de nuevo.
       </p>
-      <div className="mt-10 flex gap-4">
+      <div className="mt-12 flex gap-8">
         <button
           onClick={reset}
-          className="px-6 py-3 border border-red text-red text-sm tracking-widest uppercase hover:bg-red hover:text-white transition-colors"
+          className="text-xs tracking-[0.2em] uppercase text-grey-muted hover:text-white-muted transition-colors duration-300"
         >
           Reintentar
         </button>
         <Link
           href="/"
-          className="px-6 py-3 border border-border text-stone text-sm tracking-widest uppercase hover:text-white hover:border-stone transition-colors"
+          className="text-xs tracking-[0.2em] uppercase text-grey-muted hover:text-white-muted transition-colors duration-300"
         >
           Ir al inicio
         </Link>
