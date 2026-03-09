@@ -88,3 +88,30 @@ body {
   display: block;
   border-radius: 6px;
 }
+
+/* Reproductor audio - thumb centrado en la línea */
+.audio-range::-webkit-slider-runnable-track {
+  height: 2px;
+  background: transparent;
+}
+.audio-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--white-broken);
+  cursor: pointer;
+  margin-top: -4px; /* centra el thumb (10px) en la línea (2px) */
+}
+.audio-range::-moz-range-track {
+  height: 2px;
+  background: transparent;
+}
+.audio-range::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--white-broken);
+  border: none;
+  cursor: pointer;
+}

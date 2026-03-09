@@ -56,14 +56,24 @@ export async function PUT(
   });
   if (!work) return NextResponse.json({ error: "No encontrado" }, { status: 404 });
 
-  if (work.song) {
-    await prisma.song.update({
-      where: { workId: id },
-      data: {
-        soundcloudId: soundcloudId !== undefined ? soundcloudId || null : undefined,
-        soundcloudUrl: soundcloudUrl !== undefined ? soundcloudUrl || null : undefined,
-      },
-    });
+  if (work.type === "SONG") {
+    if (work.song) {
+      await prisma.song.update({
+        where: { workId: id },
+        data: {
+          soundcloudId: soundcloudId !== undefined ? soundcloudId || null : undefined,
+          soundcloudUrl: soundcloudUrl !== undefined ? soundcloudUrl || null : undefined,
+        },
+      });
+    } else if (soundcloudId !== undefined || soundcloudUrl !== undefined) {
+      await prisma.song.create({
+        data: {
+          workId: id,
+          soundcloudId: soundcloudId || null,
+          soundcloudUrl: soundcloudUrl || null,
+        },
+      });
+    }
   }
   if (work.book) {
     await prisma.book.update({

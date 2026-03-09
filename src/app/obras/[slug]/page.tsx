@@ -4,6 +4,8 @@ import Image from "next/image";
 import { getWorkBySlug, getWorkSlugs } from "@/lib/works";
 import AudioPlayer from "@/components/AudioPlayer";
 
+export const dynamic = "force-dynamic";
+
 export async function generateStaticParams() {
   const slugs = await getWorkSlugs();
   return slugs.map((slug) => ({ slug }));
@@ -26,7 +28,7 @@ export default async function WorkDetailPage({ params }: Props) {
   return (
     <article className="min-h-screen">
       {/* Cabecera editorial */}
-      <header className="py-20 px-6 sm:px-12 lg:px-24">
+      <header className={`pt-20 px-6 sm:px-12 lg:px-24 ${work.type === "SONG" && work.soundcloudId ? "pb-8" : "pb-20"}`}>
         <div className="max-w-2xl mx-auto">
           <Link
             href="/obras"
@@ -47,11 +49,16 @@ export default async function WorkDetailPage({ params }: Props) {
           {work.subtitle && (
             <p className="text-grey-muted text-lg mt-4 italic">{work.subtitle}</p>
           )}
+          {work.type === "SONG" && work.soundcloudId && (
+            <div className="mt-8">
+              <AudioPlayer cloudflareId={work.soundcloudId} />
+            </div>
+          )}
         </div>
       </header>
 
       {/* Contenido - tratamiento editorial extremo */}
-      <div className="py-16 px-6 sm:px-12 lg:px-24">
+      <div className={`px-6 sm:px-12 lg:px-24 ${work.type === "SONG" && work.soundcloudId ? "pt-8 pb-16" : "py-16"}`}>
         <div className="max-w-2xl mx-auto">
           {/* Libro: enlace externo (Canva u otra URL) */}
           {work.type === "BOOK" && work.embedUrl && work.embedUrl.length > 0 ? (
@@ -81,16 +88,6 @@ export default async function WorkDetailPage({ params }: Props) {
               <p className="italic text-grey-muted text-sm">
                 [Contenido completo próximamente]
               </p>
-            </div>
-          )}
-
-          {/* Audio - discreto, como nota al pie */}
-          {work.type === "SONG" && work.soundcloudId && (
-            <div className="mt-24 pt-12 border-t border-border">
-              <p className="text-grey-muted text-xs tracking-wider uppercase mb-4">
-                Escuchar
-              </p>
-              <AudioPlayer cloudflareId={work.soundcloudId} />
             </div>
           )}
 
