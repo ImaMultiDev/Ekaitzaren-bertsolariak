@@ -115,7 +115,9 @@ async function main() {
       create: { name: "libro", slug: "libro" },
     }),
   ]);
-  const tagMap = Object.fromEntries(tags.map((t) => [t.slug, t.id]));
+  const tagMap = Object.fromEntries(
+    tags.map((t: { slug: string; id: string }) => [t.slug, t.id])
+  );
 
   const proyecto = await prisma.proyecto.upsert({
     where: { slug: "kaos-ekaitza" },
