@@ -166,12 +166,12 @@ export default function AdminObrasPage() {
         </div>
         {form.type === "SONG" && (
           <div>
-            <label className="block text-xs text-grey-muted uppercase mb-1">ID SoundCloud</label>
+            <label className="block text-xs text-grey-muted uppercase mb-1">ID de Cloudflare (nombre del archivo en R2)</label>
             <input
               type="text"
               value={form.soundcloudId}
               onChange={(e) => setForm((f) => ({ ...f, soundcloudId: e.target.value }))}
-              placeholder="ID de la pista en SoundCloud"
+              placeholder="ej: audios/cancion.mp3"
               className="w-full bg-transparent border border-border px-4 py-2 text-white-broken placeholder-grey-muted focus:outline-none focus:border-white-broken/40"
             />
           </div>

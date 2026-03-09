@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { getWorkBySlug, getWorkSlugs } from "@/lib/works";
-import SoundCloudEmbed from "@/components/SoundCloudEmbed";
+import AudioPlayer from "@/components/AudioPlayer";
 
 export async function generateStaticParams() {
   const slugs = await getWorkSlugs();
@@ -90,7 +90,7 @@ export default async function WorkDetailPage({ params }: Props) {
               <p className="text-grey-muted text-xs tracking-wider uppercase mb-4">
                 Escuchar
               </p>
-              <SoundCloudEmbed trackId={work.soundcloudId} />
+              <AudioPlayer cloudflareId={work.soundcloudId} />
             </div>
           )}
 
