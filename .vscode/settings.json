@@ -1,3 +1,4 @@
 {
-  "tailwindCSS.lint.suggestCanonicalClasses": "ignore"
+  "tailwindCSS.lint.suggestCanonicalClasses": "ignore",
+  "WillLuke.nextjs.hasPrompted": true
 }

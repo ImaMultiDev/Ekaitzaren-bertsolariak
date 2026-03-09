@@ -6,6 +6,18 @@ function serializeProyecto(p: { id: string; name: string; slug: string; order: n
   return { id: p.id, name: p.name, slug: p.slug, order: p.order };
 }
 
+function deriveExcerptFromContent(content: string | null | undefined): string | undefined {
+  if (!content || !content.trim()) return undefined;
+  const text = content
+    .split("\n")
+    .slice(0, 3)
+    .join(" ")
+    .trim()
+    .slice(0, 150);
+  if (!text) return undefined;
+  return `${text}...`;
+}
+
 function serializeProject(p: {
   id: string;
   name: string;
@@ -44,12 +56,15 @@ function serializeWork(work: {
   images: { cloudinaryUrl: string; alt: string | null; caption: string | null }[];
   tags: { tag: { name: string } }[];
 }): Work {
+  const excerpt =
+    work.excerpt?.trim() || deriveExcerptFromContent(work.content) || undefined;
+
   return {
     id: work.id,
     title: work.title,
     slug: work.slug,
     subtitle: work.subtitle ?? undefined,
-    excerpt: work.excerpt ?? undefined,
+    excerpt,
     content: work.content ?? undefined,
     type: work.type,
     featured: work.featured,

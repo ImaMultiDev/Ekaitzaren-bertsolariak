@@ -48,6 +48,17 @@ npm run dev
 - **/obras** - Listado de obras con filtros
 - **/obras/[slug]** - Detalle de obra (letra, SoundCloud, imágenes)
 - **/sobre-mi** - Página personal
+- **/admin** - Panel de administración (proyectos, álbumes, obras)
+
+## Panel Admin
+
+Acceso: `/admin` (requiere login).
+
+Variables de entorno necesarias:
+- `NEXTAUTH_SECRET` - Secreto para firmar sesiones
+- `NEXTAUTH_URL` - URL base (ej. `http://localhost:3000`)
+- `ADMIN_EMAIL` - Email del administrador
+- `ADMIN_PASSWORD` - Contraseña del administrador
 
 ## Modelos de datos (Prisma)
 
