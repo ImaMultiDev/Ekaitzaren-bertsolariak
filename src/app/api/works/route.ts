@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getWorks } from "@/lib/works";
-import { WorkType } from "@prisma/client";
+import type { WorkType } from "@/lib/types";
 
 export async function GET(request: NextRequest) {
   try {
